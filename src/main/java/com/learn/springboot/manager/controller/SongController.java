@@ -4,10 +4,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,18 +46,29 @@ public class SongController {
 
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(value = "/songs")
-	public void CreateOrUpdate(@RequestBody Song song) {
+	public void createSong(@RequestBody Song song) {
 
 		// songService.createOrUpdateSong(song);
 		iSongReposity.save(song);
 	}
 
 	@CrossOrigin(origins = "http://localhost:3000")
-	@PostMapping(value = "/songs/{id}")
+	@DeleteMapping (value = "/songs/{id}")
 	public void deleteSong(@PathVariable int id) {
 		// songService.deleteSong(id);
 		iSongReposity.deleteById(id);
-
 	}
 
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(value = "/songs/{id}")
+	public ResponseEntity<Object> updateSong(@RequestBody Song song, @PathVariable int id) {
+		Optional<Song> songOptional = iSongReposity.findById(id);
+		if (!songOptional.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		song.setId(id);
+		iSongReposity.save(song);
+		return ResponseEntity.noContent().build();
+
+	}
 }
